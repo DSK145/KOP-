@@ -1,43 +1,42 @@
-import socket
+  GNU nano 8.4                                                               zxc.py                                                                             TCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    TCP.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-def chat_interact():  #封装
+    try:
+        TCP.bind((host, port))
+        TCP.listen(10)
+        print("------------------------------------")
+        print(f"监听端口号 {port}，目前用 TCP 连接（无加密）")
 
-    print("输入，开心/伤心")
-    asd = input("请输入内容: ")
-    print(asd)
-    print(f"你输入的内容: {asd}")
-      #逻辑判断
-    if asd == "开心":
-        print("开心就说说吧")
-    elif asd == "伤心":
-        print("我做的那不对？可改")
-        print("-------------------------------------")
-    else:
-        print("写入的内容ok？")
-        print("-------------------------------------")
+        # 循环接受客户端连接
+        while True:
+            print("等待客户端连接...")
+            conn, addr = TCP.accept()
+            print(f"连接地址（IPV4）：{addr}")
 
-    FASK = ["不开心", "开心？", "好了行了聊会呗"]
-    for x in FASK:
-        print("--------------------------------------")
-        print(x)
+            while True:
+                try:
+                    response = conn.recv(6000).decode('utf-8')
+                    if not response:
+                        print("客户端断开连接")
+                        break
+                    print(f"接收数据（防 SQL 注入视角）：{response}")
 
-    print("")
-    if asd == "伤心":
-        asdf = ["好了我错了。", "不开玩笑了"]
-        for j in asdf:
-            print("------------------------------------------------")
-            print(j)
-    else:
-        print("谢你来聊会")
-    return asd  # 返回输入/交互拓展
+                    response_message = input("回复：")
+                    conn.send(response_message.encode('utf-8'))
+
+                except socket.error as e:
+                    print(f"收发数据出错中止：{e}")
+                    break
+            conn.close()
+
+    except socket.error as e:
+        print(f"绑定/监听端口出错：{e}")
+    finally:
+        TCP.close()
 
 
-def run_tcp_server():
-    """启动 TCP 服务"""
-    host = 'localhost'
-    # 优化端口/异常处理
-    while True:
-        try:
-            port = int(input("端口号开放/无占用："))
-            break
-        except ValueError:
+if __name__ == "__main__":
+    # 先执行本地
+    chat_interact()
+    # TCP服务
+    run_tcp_server()
