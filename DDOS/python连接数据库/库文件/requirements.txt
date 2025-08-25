@@ -1,0 +1,8 @@
+requests
+urllib3
+aiohttp
+beautifulsoup4
+lxml
+scrapy
+selenium
+pyquery
